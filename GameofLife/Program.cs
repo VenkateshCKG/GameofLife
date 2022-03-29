@@ -1,18 +1,28 @@
 ﻿using System;
 using System.IO;
 using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace GameofLife
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
+        {
+            string basePath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location.Replace("bin\\Debug\\netcoreapp3.1", string.Empty));
+            string pathTestCase1 = @"TestCases\TestCase1.txt";
+            var location = Path.Combine(basePath, pathTestCase1);
+            Console.WriteLine(FindGeneration(location));
+        }
+
+        public static string FindGeneration(string path)
         {
             int M = 15, N = 15;
 
             // Initializing the grid.
             int[,] grid = new int[M, N];
-            string[] last = File.ReadLines(@"C:\Users\Dell\Downloads\TestCase.txt").ToArray();
+            string[] last = File.ReadLines(path).ToArray();
 
             int generation = Convert.ToInt32(last[0]);
             for (int gen0 = 1; gen0 < last.Length; gen0++)
@@ -27,11 +37,11 @@ namespace GameofLife
             {
                 future = nextGeneration(future, M, N);
             }
-            DisplayGrid(future, M, N);
+            return DisplayGrid(future, M, N);
         }
 
         // Function to print next generation
-        static int[,] nextGeneration(int[,] grid, int M, int N)
+        public static int[,] nextGeneration(int[,] grid, int M, int N)
         {
             int[,] future = new int[M, N];
 
@@ -56,18 +66,15 @@ namespace GameofLife
                     // Implementing the Rules of Life
 
                     // Cell is lonely and dies
-                    if ((grid[l, m] == 1) &&
-                                (aliveNeighbours < 2))
+                    if ((grid[l, m] == 1) && (aliveNeighbours < 2))
                         future[l, m] = 0;
 
                     // Cell dies due to over population
-                    else if ((grid[l, m] == 1) &&
-                                (aliveNeighbours > 3))
+                    else if ((grid[l, m] == 1) && (aliveNeighbours > 3))
                         future[l, m] = 0;
 
                     // A new cell is born
-                    else if ((grid[l, m] == 0) &&
-                                (aliveNeighbours == 3))
+                    else if ((grid[l, m] == 0) && (aliveNeighbours == 3))
                         future[l, m] = 1;
 
                     // Remains the same
@@ -78,19 +85,19 @@ namespace GameofLife
 
             return future;
         }
-        public static void DisplayGrid(int[,] future, int M, int N)
+        public static string DisplayGrid(int[,] future, int M, int N)
         {
+            StringBuilder result = new StringBuilder();
             for (int i = 0; i < M; i++)
             {
                 for (int j = 0; j < N; j++)
                 {
-                    if (future[i, j] == 0)
-                        Console.Write(".");
-                    else
-                        Console.Write(i + "," + j);
+                    if (future[i, j] == 1)
+                        result.Append($"({i},{j}),");
                 }
-                Console.WriteLine();
             }
+            return $"[{result.ToString().Trim(',')}]";
         }
     }
 }
+
